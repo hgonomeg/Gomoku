@@ -5,6 +5,8 @@ resource_manager::resource_manager() {
     this->cross = new sf::Texture();
     nought->loadFromFile("resources/nought.png");
     cross->loadFromFile("resources/cross.png");
+    nought->setSmooth(true);
+    cross->setSmooth(true);
 }
 
 resource_manager::~resource_manager() {

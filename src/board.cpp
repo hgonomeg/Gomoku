@@ -18,3 +18,10 @@ board::~board() {
 field board::victory() const {
     return field::empty;
 }
+
+void board::set_value(std::size_t x,std::size_t y,field fd) {
+    fields[x][y] = fd;
+}
+field board::get_value(std::size_t x ,std::size_t y) {
+    return fields[x][y];
+}
