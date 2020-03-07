@@ -12,5 +12,6 @@ protected:
     std::vector<std::vector<field>> fields;
 public:
     board(std::size_t board_size);
+    field victory() const;
     ~board();
 };

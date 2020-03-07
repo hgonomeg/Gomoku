@@ -3,6 +3,7 @@
 #include "board.hpp"
 #include "resource_manager.hpp"
 #include <memory>
+#include <thread>
 
 class game_window :public board {
     sf::RenderWindow m_window;
@@ -16,7 +17,7 @@ class game_window :public board {
 public:
     void process_events();
     void draw();
-    bool is_alive();
+    bool is_alive() const;
     game_window(std::shared_ptr<resource_manager>);
     ~game_window();
 };

@@ -8,5 +8,6 @@ int main() {
     while(single_game.is_alive()) {
         single_game.process_events();
         single_game.draw();
+        std::this_thread::yield();
     }
 }

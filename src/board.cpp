@@ -14,3 +14,7 @@ board::board(std::size_t board_size)
 board::~board() {
 
 }
+
+field board::victory() const {
+    return field::empty;
+}

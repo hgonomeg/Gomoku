@@ -25,11 +25,20 @@ void game_window::process_events() {
                 m_window.close();
                 break;
             }
+            case sf::Event::MouseButtonPressed: {
+                break;
+            }
+            case sf::Event::MouseButtonReleased: {
+                break;
+            }
+            case sf::Event::MouseMoved: {
+                break;
+            }
         }
     }
 }
 
-bool game_window::is_alive() {
+bool game_window::is_alive() const {
     return m_window.isOpen();
 }
 
