@@ -36,7 +36,7 @@ void game_window::process_events() {
                 auto mbp = event.mouseButton;
                 std::size_t x = mbp.x / cell_size;
                 std::size_t y = mbp.y / cell_size;
-                if(y<32 && x<32)
+                if(y<32 && x<32 && mbp.button == sf::Mouse::Button::Left) 
                 {
                     controller->register_move(this,x,y);
 
