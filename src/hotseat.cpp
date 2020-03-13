@@ -1,6 +1,6 @@
-#include "singleplayer.hpp"
+#include "hotseat.hpp"
 
-singleplayer::singleplayer() {
+hotseat::hotseat() {
     std::default_random_engine random_eng(std::chrono::system_clock::now().time_since_epoch().count());
     std::uniform_int_distribution<int> distro(0,1);
     auto random_number =  distro(random_eng);
@@ -13,18 +13,18 @@ singleplayer::singleplayer() {
 
 }
 
-singleplayer::~singleplayer() {
+hotseat::~hotseat() {
 
 }
 
-field singleplayer::get_current_player() {
+field hotseat::get_current_player() {
     if(last_move == field::cross)
         return field::nought;
     else
         return field::cross;
 }
 
-bool singleplayer::register_move(board* curr,std::size_t x,std::size_t y) {
+bool hotseat::register_move(board* curr,std::size_t x,std::size_t y) {
     if(curr->get_value(x,y) == field::empty) {
         if(last_move == field::cross)
             last_move = field::nought;
