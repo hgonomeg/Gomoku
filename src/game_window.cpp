@@ -72,7 +72,7 @@ void game_window::process_events() {
                     lr_mut.lock();
                     auto final_time = lastresize;
                     lr_mut.unlock();
-                    if(invoke_time == final_time) { //make sure that the last window resize happened 200ms ago in order to prevent the window from not maintaining its' aspect ratio 
+                    if(is_alive_logic_async() && invoke_time == final_time) { //make sure that the last window resize happened 200ms ago in order to prevent the window from not maintaining its' aspect ratio 
                         std::lock_guard lo(logic_mut); //prevent raid with drawing
                         m_window.setSize({edge,edge});
                         sf::View new_view;
