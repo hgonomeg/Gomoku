@@ -5,6 +5,10 @@
 #include "game_controller.hpp"
 #include <memory>
 #include <thread>
+#include <chrono>
+#include <mutex>
+#include <functional>
+#include <list>
 
 class game_window :public board {
     std::unique_ptr<game_controller> controller;
@@ -15,11 +19,15 @@ class game_window :public board {
     std::size_t cell_size;
 
     std::shared_ptr<resource_manager> res;
-    std::thread logic;
-
+    std::thread logic_thread;
+    std::list<std::function<void()>> logic_async_queue;
+    std::mutex logic_mut;
 
     void distribute_lines();
     void draw_board();
+    void thread_fx();
+    bool is_alive_logic_async();
+    void logic_async(std::function<void()>);
     std::size_t compute_cell_size();
 
 public:
