@@ -16,6 +16,9 @@ class game_window :public board {
     sf::RenderWindow m_window;
     sf::VertexArray vertical_lines[32];
     sf::VertexArray horizontal_lines[32];
+    bool rescale_threads_active;
+    std::mutex window_mut;
+
     std::size_t cell_size;
 
     std::shared_ptr<resource_manager> res;
@@ -26,14 +29,13 @@ class game_window :public board {
     void distribute_lines();
     void draw_board();
     void thread_fx();
-    bool is_alive_logic_async();
     void logic_async(std::function<void()>);
     std::size_t compute_cell_size();
 
 public:
     void process_events();
     void draw();
-    bool is_alive() const;
+    bool is_alive();
     game_window(std::shared_ptr<resource_manager>,game_controller*);
     ~game_window();
 };

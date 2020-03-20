@@ -6,16 +6,27 @@ board(32),
 controller(m_contr),
 logic_thread(&game_window::thread_fx,this),
 res(m_res) {
+    std::lock_guard<std::mutex> lo(window_mut);
     m_window.setVerticalSyncEnabled(true);
-    distribute_lines();
     compute_cell_size();
+    distribute_lines();
+    rescale_threads_active = false;
 }
 
 game_window::~game_window() {
+    window_mut.lock();
     if(m_window.isOpen()) {
         m_window.close();
     }
+    window_mut.unlock();
     if(logic_thread.joinable()) logic_thread.join();
+    while(true) {
+    window_mut.lock();
+    if(!rescale_threads_active)
+        break;
+    window_mut.unlock();
+    std::this_thread::yield();
+    }
 }
 
 std::size_t game_window::compute_cell_size() {
@@ -31,13 +42,16 @@ void game_window::process_events() {
                 break;
             };
             case sf::Event::Closed: {
+                std::lock_guard lo(window_mut);
                 m_window.close();
                 break;
             }
             case sf::Event::MouseButtonPressed: {
                 auto mbp = event.mouseButton;
+                window_mut.lock();
                 std::size_t x = mbp.x / cell_size;
                 std::size_t y = mbp.y / cell_size;
+                window_mut.unlock();
                 if(y<32 && x<32 && mbp.button == sf::Mouse::Button::Left) 
                 {
                     logic_async([this,x,y](){controller->register_move(this,x,y);});
@@ -58,6 +72,7 @@ void game_window::process_events() {
                 lr_mut.lock();
                 lastresize = std::chrono::system_clock::now();
                 lr_mut.unlock();
+
                 auto size = event.size;
                 unsigned int edge = std::min(size.height,size.width);
                 while(edge%32!=0) {
@@ -72,8 +87,8 @@ void game_window::process_events() {
                     lr_mut.lock();
                     auto final_time = lastresize;
                     lr_mut.unlock();
-                    if(is_alive_logic_async() && invoke_time == final_time) { //make sure that the last window resize happened 200ms ago in order to prevent the window from not maintaining its' aspect ratio 
-                        std::lock_guard lo(logic_mut); //prevent raid with drawing
+                    if(invoke_time == final_time) { //make sure that the last window resize happened 200ms ago in order to prevent the window from not maintaining its' aspect ratio 
+                        std::lock_guard lo(window_mut); //prevent raid with drawing
                         m_window.setSize({edge,edge});
                         sf::View new_view;
                         new_view.setSize(edge,edge);
@@ -81,9 +96,12 @@ void game_window::process_events() {
                         m_window.setView(new_view);
                         compute_cell_size();
                         distribute_lines();
+                        rescale_threads_active = false;
                     }
 
                 };
+                std::lock_guard lo(window_mut);
+                rescale_threads_active = false;
 
                 std::thread deferred_resize(defer_resize,std::ref(lastresize),std::ref(lr_mut));
                 deferred_resize.detach();
@@ -93,11 +111,13 @@ void game_window::process_events() {
     }
 }
 
-bool game_window::is_alive() const {
+bool game_window::is_alive() {
+    std::lock_guard<std::mutex> lo(window_mut);
     return m_window.isOpen();
 }
 
 void game_window::draw() {
+    window_mut.lock();
     m_window.clear(sf::Color::White);
     for(const auto& x: vertical_lines) {
         m_window.draw(x);
@@ -105,6 +125,7 @@ void game_window::draw() {
     for(const auto& x: horizontal_lines) {
         m_window.draw(x);
     }
+    window_mut.unlock();
     draw_board();
     m_window.display();
 }
@@ -128,6 +149,7 @@ void game_window::distribute_lines() {
 }
 
 void game_window::draw_board() {
+    std::lock_guard<std::mutex> w_lo(window_mut);
     sf::RectangleShape nought;
     nought.setTexture(res->nought);
     nought.setSize({cell_size,cell_size});
@@ -136,7 +158,8 @@ void game_window::draw_board() {
     cross.setTexture(res->cross);
     cross.setSize({cell_size,cell_size});
     
-    std::lock_guard<std::mutex> lo(logic_mut);
+    std::lock_guard<std::mutex> lo(data_mut);
+    
     for(std::size_t x = 0; x < 32; x++)
         for(std::size_t y = 0; y < 32; y++) {
             switch(fields[x][y]) {
@@ -170,7 +193,7 @@ void game_window::thread_fx() {
         return last;
     };
 
-    while(is_alive_logic_async()) {
+    while(is_alive()) {
         std::this_thread::sleep_for(std::chrono::milliseconds(25));
         fetch()();
     }
@@ -179,9 +202,4 @@ void game_window::thread_fx() {
 void game_window::logic_async(std::function<void()> fx) {
     std::lock_guard<std::mutex> lo(logic_mut);
     logic_async_queue.push_back(std::move(fx));
-}
-
-bool game_window::is_alive_logic_async() {
-    std::lock_guard<std::mutex> lo(logic_mut);
-    return is_alive();
 }

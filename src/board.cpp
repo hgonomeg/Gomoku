@@ -20,8 +20,14 @@ field board::victory() const {
 }
 
 void board::set_value(std::size_t x,std::size_t y,field fd) {
+    std::lock_guard<std::mutex> lo(data_mut);
+    if(x>=fields.size()||y>=fields.size())
+        throw std::out_of_range("board::set_value");
     fields[x][y] = fd;
 }
 field board::get_value(std::size_t x ,std::size_t y) {
+    std::lock_guard<std::mutex> lo(data_mut);
+    if(x>=fields.size()||y>=fields.size())
+        throw std::out_of_range("board::get_value");
     return fields[x][y];
 }
