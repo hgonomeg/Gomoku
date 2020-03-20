@@ -7,7 +7,7 @@
 #include <map>
 #include <SFML/Network.hpp>
 #include "board.hpp"
-// #include <nlohmann/json.hpp> This is considered an option
+#include <nlohmann/json.hpp> 
 
 namespace network {
 
