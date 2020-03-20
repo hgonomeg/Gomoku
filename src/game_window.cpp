@@ -1,11 +1,11 @@
 #include "game_window.hpp"
 
 game_window::game_window(std::shared_ptr<resource_manager> m_res,game_controller* m_contr)
-:m_window(sf::VideoMode(512,512),"Gomoku game"),
-board(32),
+:board(32),
 controller(m_contr),
-logic_thread(&game_window::thread_fx,this),
-res(m_res) {
+res(m_res),
+m_window(sf::VideoMode(512,512),"Gomoku game") {
+    logic_thread = std::thread(&game_window::thread_fx,this);
     std::lock_guard<std::mutex> lo(window_mut);
     m_window.setVerticalSyncEnabled(true);
     compute_cell_size();
@@ -32,6 +32,7 @@ game_window::~game_window() {
 std::size_t game_window::compute_cell_size() {
     auto view = m_window.getView();
     cell_size = view.getSize().x / 32;
+    return cell_size;
 }
 
 void game_window::process_events() {
@@ -192,7 +193,7 @@ void game_window::thread_fx() {
         logic_async_queue.pop_front();
         return last;
     };
-
+    std::this_thread::sleep_for(std::chrono::milliseconds(250));
     while(is_alive()) {
         std::this_thread::sleep_for(std::chrono::milliseconds(25));
         fetch()();
