@@ -9,3 +9,4 @@ A simple implementation of the classic Gomoku game in C++ using SFML
 In order to compile Gomoku, the following libraries are required to be linked against:
 
 * SFML (all modules but the Audio)
+* TGUI 
