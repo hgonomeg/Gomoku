@@ -21,11 +21,11 @@ game_window::~game_window() {
     window_mut.unlock();
     if(logic_thread.joinable()) logic_thread.join();
     while(true) {
-    window_mut.lock();
-    if(!rescale_threads_active)
-        break;
-    window_mut.unlock();
-    std::this_thread::yield();
+        window_mut.lock();
+        if(!rescale_threads_active)
+            break;
+        window_mut.unlock();
+        std::this_thread::yield();
     }
 }
 
@@ -102,7 +102,7 @@ void game_window::process_events() {
 
                 };
                 std::lock_guard lo(window_mut);
-                rescale_threads_active = false;
+                rescale_threads_active = true;
 
                 std::thread deferred_resize(defer_resize,std::ref(lastresize),std::ref(lr_mut));
                 deferred_resize.detach();
