@@ -54,7 +54,7 @@ namespace network {
         std::mutex clients_mut;
         std::mutex cout_mut;
         mutable std::mutex global_state_mut;
-        bool not_quit;
+        bool not_quit_time;
         void main_loop();
         bool not_quit() const;
         std::thread loop_thread;
