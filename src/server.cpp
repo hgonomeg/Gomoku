@@ -4,16 +4,29 @@ namespace network {
 
     server::server() 
     :loop_thread(&server::main_loop,this) {
-
+        global_state_mut.lock();
+        this->not_quit = true;
+        listener.setBlocking(false);
+        global_state_mut.unlock();
     }
 
     server::~server() {
+        global_state_mut.lock();
+        this->not_quit = false;
+        global_state_mut.unlock();
         if(loop_thread.joinable())
             loop_thread.join();
     }
 
     void server::main_loop() {
+        while(not_quit()) {
+            std::this_thread::yield();
+        }
+    }
 
+    bool server::not_quit() const {
+        std::lock_guard<std::mutex> mlock(global_state_mut);
+        return not_quit;
     }
     void server::console() {
         using std::cout;
