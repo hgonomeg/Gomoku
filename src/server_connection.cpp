@@ -4,6 +4,7 @@ server_connection::server_connection(board* brd,sf::IpAddress ip,network::client
     m_board = brd;
     server_ip = ip;
     m_type = tp;
+    this->port = port;
     comm.bind(port);
     listener = std::thread(&server_connection::listener_fx,this);
     last_move = field::empty;

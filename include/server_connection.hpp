@@ -7,6 +7,7 @@ class server_connection : game_controller {
     field last_move;
     network::client_type m_type;
     unsigned int match_id, last_rx_packet_id, last_tx_packet_id;
+    unsigned short port;
     sf::IpAddress server_ip;
     sf::UdpSocket comm;
     std::thread listener;
