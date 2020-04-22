@@ -2,11 +2,13 @@
 #include <sstream>
 namespace network {
 
-    server::server() 
-    :loop_thread(&server::main_loop,this) {
+    server::server(unsigned short port) 
+    :not_quit_time(true),
+    comm_port(port+1),
+    loop_thread(&server::main_loop,this) {
         global_state_mut.lock();
-        not_quit_time = true;
-        listener.setBlocking(false);
+        discovery_socket.setBlocking(false);
+        discovery_socket.bind(port);
         global_state_mut.unlock();
     }
 
@@ -40,15 +42,15 @@ namespace network {
                 command_str>>command;
                 if(command=="help") {
                     std::lock_guard<std::mutex> ctl(cout_mut);
-                    cout<<"There are currently no available commands."<<endl;
+                    cout<<rang::fg::green<<"There are currently no available commands."<<rang::fg::reset<<endl;
                 } else {
                     std::lock_guard<std::mutex> ctl(cout_mut);
-                    cout<<"Unknown command!"<<endl;
+                    cout<<rang::fg::red<<"Unknown command!"<<rang::fg::reset<<endl;
                 }
             }
         };
 
-        cout<<"Gomoku server."<<endl;
+        cout<<rang::fg::green<<"Gomoku server."<<rang::fg::reset<<endl;
 
         std::string command;
         while(command!="quit"&&command!="exit"&&command!="stop") {

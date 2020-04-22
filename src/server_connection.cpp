@@ -1,9 +1,10 @@
 #include "server_connection.hpp"
 
-server_connection::server_connection(board* brd,sf::IpAddress ip,network::client_type tp) {
+server_connection::server_connection(board* brd,sf::IpAddress ip,network::client_type tp, unsigned short port) {
     m_board = brd;
     server_ip = ip;
     m_type = tp;
+    comm.bind(port);
     listener = std::thread(&server_connection::listener_fx,this);
     last_move = field::empty;
 }

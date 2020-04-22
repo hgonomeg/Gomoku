@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <memory>
+#include <atomic>
 #include <list>
 #include <thread>
 #include <mutex>
@@ -8,6 +9,7 @@
 #include <SFML/Network.hpp>
 #include "board.hpp"
 #include <nlohmann/json.hpp> 
+#include <rang.hpp>
 
 namespace network {
 
@@ -24,9 +26,9 @@ namespace network {
 
     class client {
         sf::IpAddress ip_address;
-        sf::UdpSocket sender;
+        sf::UdpSocket socket;
         client_type type;
-        unsigned int match_id;
+        unsigned int match_id, last_rx_packet_id, last_tx_packet_id;
         std::string nick;
         std::mutex mut;
         client(std::string,client_type,sf::IpAddress);
@@ -39,6 +41,7 @@ namespace network {
         field current_round;
         client* cross;
         client* nought;
+        std::list<std::shared_ptr<client>> passives;
         std::mutex mut;
 
         public: 
@@ -47,11 +50,11 @@ namespace network {
     };
 
     class server {
-        sf::UdpSocket listener;
+        sf::UdpSocket discovery_socket;
 
         std::map<unsigned int,match> matches;
-        std::list<client> clients;
-        std::mutex clients_mut;
+        std::list<std::weak_ptr<client>> clients;
+        std::atomic_ushort comm_port;
         std::mutex cout_mut;
         mutable std::mutex global_state_mut;
         bool not_quit_time;
@@ -60,7 +63,7 @@ namespace network {
         std::thread loop_thread;
 
     public:
-        server();
+        server(unsigned short port = 35567);
         ~server();
         void console();
     };
