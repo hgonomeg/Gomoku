@@ -53,7 +53,7 @@ int main(int argc, char** argv) {
         case run_mode::server:{
             std::cerr<<"Server mode not implemented."<<std::endl;
             server_mode();
-            return 1;
+            //return 1;
             break;
         }
         case run_mode::help:{

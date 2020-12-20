@@ -196,7 +196,11 @@ void game_window::thread_fx() {
     std::this_thread::sleep_for(std::chrono::milliseconds(250));
     while(is_alive()) {
         std::this_thread::sleep_for(std::chrono::milliseconds(25));
-        fetch()();
+        try {
+            fetch()();
+        }catch(std::exception& e) {
+            std::cout<<rang::fg::red<<"[LOGIC THREAD]: Caught exception when calling a function from the queue: "<<e.what()<<rang::fg::reset;
+        }
     }
 
 }

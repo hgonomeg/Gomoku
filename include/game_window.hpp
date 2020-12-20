@@ -8,6 +8,8 @@
 #include <chrono>
 #include <mutex>
 #include <functional>
+#include <iostream>
+#include <rang.hpp>
 #include <list>
 
 class game_window :public board {
