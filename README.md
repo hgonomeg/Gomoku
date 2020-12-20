@@ -11,3 +11,4 @@ In order to compile Gomoku, the following libraries are required to be installed
 * Nlohmann JSON (no linking; header-only)
 * Rang (for terminal coloring; no linking; hearder-only)
 * SFML (all modules but the Audio)
+* TGUI
